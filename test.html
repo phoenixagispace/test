@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>测测你的恋爱边界感属于哪一型</title>
+  <style>
+    :root {
+      --bg: #f8f4f1;
+      --card: #ffffff;
+      --text: #3b2f2f;
+      --sub: #7a6666;
+      --line: #eadfdb;
+      --accent: #d99c9c;
+      --accent-dark: #b87575;
+      --shadow: 0 10px 30px rgba(76, 53, 53, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #fbf7f5 0%, #f5efeb 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+
+    .hero, .card, .result-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #f8e2e2;
+      color: var(--accent-dark);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      line-height: 1.25;
+    }
+
+    .desc {
+      margin: 0;
+      color: var(--sub);
+      font-size: 15px;
+    }
+
+    .card {
+      padding: 22px;
+      margin: 16px 0;
+    }
+
+    .question-title {
+      font-size: 20px;
+      margin: 0 0 14px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fffdfc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .option input {
+      margin-top: 3px;
+      accent-color: var(--accent-dark);
+      transform: scale(1.15);
+    }
+
+    .option-text {
+      flex: 1;
+      font-size: 15px;
+    }
+
+    .actions {
+      position: sticky;
+      bottom: 12px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .primary {
+      background: var(--accent-dark);
+      color: white;
+    }
+
+    .primary:hover { opacity: 0.92; }
+
+    .secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .result-card {
+      display: none;
+      padding: 28px;
+      margin-top: 22px;
+    }
+
+    .result-type {
+      font-size: 28px;
+      margin: 6px 0 10px;
+    }
+
+    .result-score {
+      color: var(--sub);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .result-body {
+      font-size: 16px;
+      white-space: pre-line;
+    }
+
+    .tips {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #fcf7f4;
+      border: 1px dashed var(--line);
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: #8d7b7b;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 26px; }
+      .question-title { font-size: 18px; }
+      .hero, .card, .result-card { padding: 18px; }
+      .actions { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="tag">情感测试 · 娱乐版</div>
+      <h1>测测你的恋爱边界感属于哪一型</h1>
+      <p class="desc">
+        8道题，帮你看看自己在关系里，是能稳定做自己，还是更容易迁就、压抑，或者过度防御。
+        本测试仅供娱乐与自我探索参考，不构成任何医学、心理诊断或治疗建议。
+      </p>
+    </section>
+
+    <form id="quizForm">
+      <div class="card">
+        <h2 class="question-title">1. 对方临时约你，你原本已经安排好自己的事，你会：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q1" value="1"><span class="option-text">A. 看情况，能改就改</span></label>
+          <label class="option"><input type="radio" name="q1" value="2"><span class="option-text">B. 大概率答应，不想扫兴</span></label>
+          <label class="option"><input type="radio" name="q1" value="3"><span class="option-text">C. 心里不太想，但嘴上不好拒绝</span></label>
+          <label class="option"><input type="radio" name="q1" value="4"><span class="option-text">D. 直接说今天不行，改天再约</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">2. 当对方向你倾倒很多负面情绪时，你通常会：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q2" value="1"><span class="option-text">A. 听一听，但不会全接住</span></label>
+          <label class="option"><input type="radio" name="q2" value="2"><span class="option-text">B. 忍不住一直安慰，想让他好起来</span></label>
+          <label class="option"><input type="radio" name="q2" value="3"><span class="option-text">C. 表面镇定，事后自己也被影响</span></label>
+          <label class="option"><input type="radio" name="q2" value="4"><span class="option-text">D. 会分辨这是不是我该承担的</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">3. 恋爱后，你的生活重心通常会：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q3" value="1"><span class="option-text">A. 基本不变，恋爱只是其中一部分</span></label>
+          <label class="option"><input type="radio" name="q3" value="2"><span class="option-text">B. 会明显向对方倾斜</span></label>
+          <label class="option"><input type="radio" name="q3" value="3"><span class="option-text">C. 看起来不变，但情绪很受对方影响</span></label>
+          <label class="option"><input type="radio" name="q3" value="4"><span class="option-text">D. 会刻意提醒自己别失衡</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">4. 当你不开心时，你更习惯：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q4" value="1"><span class="option-text">A. 直接说出需求</span></label>
+          <label class="option"><input type="radio" name="q4" value="2"><span class="option-text">B. 先忍一忍，怕显得矫情</span></label>
+          <label class="option"><input type="radio" name="q4" value="3"><span class="option-text">C. 希望对方自己察觉</span></label>
+          <label class="option"><input type="radio" name="q4" value="4"><span class="option-text">D. 先梳理清楚再表达</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">5. 对方偶尔越界，比如翻你手机、替你做决定，你更可能：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q5" value="1"><span class="option-text">A. 不舒服会直接说</span></label>
+          <label class="option"><input type="radio" name="q5" value="2"><span class="option-text">B. 会先忍，因为怕影响气氛</span></label>
+          <label class="option"><input type="radio" name="q5" value="3"><span class="option-text">C. 当下不说，之后越想越别扭</span></label>
+          <label class="option"><input type="radio" name="q5" value="4"><span class="option-text">D. 会明确告诉对方你的底线</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">6. 关系里最像你的状态是：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q6" value="1"><span class="option-text">A. 有亲密，也有自己的空间</span></label>
+          <label class="option"><input type="radio" name="q6" value="2"><span class="option-text">B. 很容易把对方的需求放前面</span></label>
+          <label class="option"><input type="radio" name="q6" value="3"><span class="option-text">C. 经常说没事，其实心里有事</span></label>
+          <label class="option"><input type="radio" name="q6" value="4"><span class="option-text">D. 在意归在意，但会保护自己的节奏</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">7. 当对方需要你时，你最容易：</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q7" value="1"><span class="option-text">A. 在能力范围内支持</span></label>
+          <label class="option"><input type="radio" name="q7" value="2"><span class="option-text">B. 先帮了再说，很少考虑自己累不累</span></label>
+          <label class="option"><input type="radio" name="q7" value="3"><span class="option-text">C. 嘴上没意见，身体已经很疲惫</span></label>
+          <label class="option"><input type="radio" name="q7" value="4"><span class="option-text">D. 先判断这是不是合理需求</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="question-title">8. 下面哪句话更像你？</h2>
+        <div class="options">
+          <label class="option"><input type="radio" name="q8" value="1"><span class="option-text">A. “我爱你，但我也有我自己的生活。”</span></label>
+          <label class="option"><input type="radio" name="q8" value="2"><span class="option-text">B. “只要你开心，我可以委屈一点。”</span></label>
+          <label class="option"><input type="radio" name="q8" value="3"><span class="option-text">C. “我总在关系里后知后觉地不舒服。”</span></label>
+          <label class="option"><input type="radio" name="q8" value="4"><span class="option-text">D. “真正舒服的关系，不需要谁一直牺牲。”</span></label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="primary" onclick="calculateResult()">查看测试结果</button>
+        <button type="reset" class="secondary" onclick="resetResult()">重新作答</button>
+      </div>
+    </form>
+
+    <section id="result" class="result-card" aria-live="polite"></section>
+
+    <p class="footer-note">提示：这是一页单文件 HTML，可直接保存后在浏览器打开，也可以继续改成小红书引流页、H5测试页或付费版落地页。</p>
+  </div>
+
+  <script>
+    const results = [
+      {
+        min: 8,
+        max: 12,
+        title: '稳定边界型',
+        body: '你很懂得在亲密和自我之间找平衡。你不会因为恋爱就失去自己的节奏，也不会用牺牲换安全感。\n\n你的优势是成熟、稳定、沟通清晰。你知道爱一个人，不等于把自己的时间、情绪和边界都交出去。\n\n你现阶段最值得保持的，是这种既能靠近、又能做自己的能力。\n\n钩子方向：你吸引什么类型的人，可以放进完整版报告。'
+      },
+      {
+        min: 13,
+        max: 17,
+        title: '温柔迁就型',
+        body: '你很会照顾别人，也很容易把对方放进自己的优先级。你的温柔很珍贵，但也容易让你习惯性委屈自己。\n\n你不是没有边界，而是总会先想到“这样做会不会让对方失望”。\n\n你需要练习的，不是变冷，而是让爱里也有你自己的位置。\n\n钩子方向：你最容易在哪类关系里吃亏，适合做进阶版内容。'
+      },
+      {
+        min: 18,
+        max: 22,
+        title: '隐忍压抑型',
+        body: '你不是没有边界，而是总在当下说不出口。很多不舒服你会先吞下，等到累积多了才突然难受。\n\n你的优点是体谅、克制、懂分寸；但真正稳定的关系，靠的不是忍。\n\n你需要的不是更懂事，而是更及时地表达自己的真实感受。\n\n钩子方向：你的高频委屈场景，可以作为完整版解锁内容。'
+      },
+      {
+        min: 23,
+        max: 32,
+        title: '清醒守界型',
+        body: '你对边界很敏感，也很清楚什么是自己能给的、什么不是。你的优势是自尊感强，不容易被关系吞没。\n\n你很会保护自己，也懂得及时踩刹车。\n\n不过有时也可能因为过度防御，让别人很难真正靠近你。\n\n钩子方向：你适合什么样的亲密距离，很适合延伸成下一页报告。'
+      }
+    ];
+
+    function calculateResult() {
+      const form = document.getElementById('quizForm');
+      const totalQuestions = 8;
+      let score = 0;
+
+      for (let i = 1; i <= totalQuestions; i++) {
+        const checked = form.querySelector(`input[name="q${i}"]:checked`);
+        if (!checked) {
+          alert(`第 ${i} 题还没有作答哦`);
+          return;
+        }
+        score += Number(checked.value);
+      }
+
+      const match = results.find(item => score >= item.min && score <= item.max);
+      const resultEl = document.getElementById('result');
+
+      resultEl.innerHTML = `
+        <div class="tag">测试结果</div>
+        <h2 class="result-type">${match.title}</h2>
+        <div class="result-score">你的总分：${score} 分</div>
+        <div class="result-body">${match.body}</div>
+        <div class="tips">运营建议：这一页适合做免费引流版。下一步可以继续加“专属建议”“最容易吃亏的场景”“适合你的伴侣画像”等模块，作为付费完整版。</div>
+      `;
+
+      resultEl.style.display = 'block';
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetResult() {
+      const resultEl = document.getElementById('result');
+      resultEl.style.display = 'none';
+      resultEl.innerHTML = '';
+    }
+  </script>
+</body>
+</html>
