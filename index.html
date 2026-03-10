@@ -239,6 +239,33 @@
     font-size: 12px; color: var(--mauve); margin-bottom: 24px;
   }
 
+  /* ── Radar chart ── */
+  .radar-wrap {
+    background: white;
+    border: 1.5px solid var(--mist);
+    border-radius: 24px; padding: 28px 20px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(200,105,122,.07);
+    text-align: center;
+  }
+  .radar-title {
+    font-size: 11px; letter-spacing: 4px; color: var(--mauve);
+    margin-bottom: 18px;
+  }
+  #radar-canvas { display: block; margin: 0 auto; }
+  .radar-legend {
+    display: flex; flex-wrap: wrap; gap: 8px 16px;
+    justify-content: center; margin-top: 16px;
+  }
+  .radar-legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--mauve);
+  }
+  .radar-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rose); flex-shrink: 0;
+  }
+
   .result-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
   .btn-retry {
     padding: 13px; border-radius: 50px;
@@ -342,6 +369,12 @@
       <div class="hook-text" id="r-hook"></div>
     </div>
   </div>
+  <div class="radar-wrap">
+    <div class="radar-title">✦ 你的特质雷达图</div>
+    <canvas id="radar-canvas" width="300" height="300"></canvas>
+    <div class="radar-legend" id="radar-legend"></div>
+  </div>
+
   <div class="result-actions">
     <button class="btn-retry" id="btn-retry" onclick="retryQuiz()">重新测试这套</button>
     <button class="btn-home" onclick="goHome()">返回首页，换套测试</button>
@@ -577,11 +610,303 @@ function showResult() {
   document.getElementById('r-desc').textContent = res.desc;
   document.getElementById('r-hook').textContent = res.hook;
 
+  // Draw radar after DOM is visible
+  requestAnimationFrame(() => drawRadar(currentQuiz, answers));
+
   document.getElementById('result-screen').scrollIntoView({ behavior: 'smooth' });
 }
 
 function retryQuiz() {
   startQuiz(currentQuiz);
+}
+
+// ── Radar definitions (6维，每选项对所有维度都有贡献，避免0/100极端) ─────────
+//
+// 设计原则：
+//   • 每道题每个选项在6个维度上均有分值（最低1，最高3）
+//   • 同一维度跨选项的分值差距控制在1-2分，避免拉满/清零
+//   • 维度含义与题目内容、结果描述保持逻辑一致
+//
+// 套一维度：理性判断 / 情感投入 / 情绪敏感 / 自我保护 / 沟通主动 / 共情能力
+//   A选项→ 理性强、情感适中、敏感低、保护中、沟通主动、共情中
+//   B选项→ 理性低、情感高、敏感高、保护低、沟通被动、共情高
+//   C选项→ 理性中、情感高、敏感高、保护中、沟通被动、共情高
+//   D选项→ 理性中、情感低、敏感低、保护高、沟通中、共情低
+//
+// 每题权重格式：[ [A的6维分], [B的6维分], [C的6维分], [D的6维分] ]
+// 维度顺序：[理性判断, 情感投入, 情绪敏感, 自我保护, 沟通主动, 共情能力]
+
+const RADAR_META = [
+  // ── 套一：你在恋爱里最容易输在哪一步 ──────────────────────────────────────
+  // 维度：理性判断 / 情感投入 / 情绪敏感 / 自我保护 / 沟通主动 / 共情能力
+  {
+    dims: ["理性判断", "情感投入", "情绪敏感", "自我保护", "沟通主动", "共情能力"],
+    // 每题 [A,B,C,D] × 6维，值域1-3
+    weights: [
+      // Q1 对方回复变慢
+      // A等待=理性↑沟通中  B自我怀疑=情感↑敏感↑  C表面冷静内心猜=情感↑敏感↑  D克制=保护↑
+      [[3,1,1,2,2,2],[1,3,3,1,1,3],[2,2,3,2,1,3],[2,1,1,3,2,1]],
+      // Q2 喜欢后的状态
+      // A慢慢观察=理性↑  B注意力放他身上=情感↑敏感↑  C嘴冷心热=情感↑敏感↑  D克制主动=保护↑
+      [[3,1,1,2,3,2],[1,3,2,1,1,3],[2,3,3,2,1,3],[2,1,1,3,2,1]],
+      // Q3 冷淡话的反应
+      // A看整体=理性↑  B情绪低落=情感↑敏感↑共情↑  C记心里不说=敏感↑保护↑  D抽离=保护↑
+      [[3,1,1,2,3,2],[1,3,3,1,1,3],[2,2,3,3,1,3],[2,1,1,3,2,1]],
+      // Q4 最怕的事
+      // A方向不一致=理性↑  B自己太投入=情感↑  C猜不透=敏感↑共情↑  D失去分寸=保护↑
+      [[3,1,2,2,3,2],[1,3,2,1,2,2],[2,2,3,2,1,3],[2,1,1,3,2,1]],
+      // Q5 对方情绪不好
+      // A给空间=理性↑沟通中  B安抚=情感↑共情↑  C默默观察被影响=敏感↑共情↑  D先保护自己=保护↑
+      [[3,1,1,2,2,2],[1,3,2,1,2,3],[2,2,3,2,1,3],[2,1,1,3,2,1]],
+      // Q6 关系里最常做的事
+      // A确认适不适合=理性↑  B照顾感受=情感↑共情↑  C表面平静内心复盘=敏感↑  D装淡=保护↑
+      [[3,1,1,2,3,2],[1,3,2,1,1,3],[2,2,3,2,1,2],[2,1,1,3,2,1]],
+      // Q7 关系不确定时
+      // A直接沟通=沟通↑理性↑  B更努力=情感↑  C不停猜测内耗=敏感↑  D后退降期待=保护↑
+      [[3,2,1,2,3,2],[1,3,2,1,2,2],[2,2,3,2,1,3],[2,1,1,3,1,1]],
+      // Q8 最像你的话
+      // A稳定清晰=理性↑  B不自觉对别人好=情感↑共情↑  C太会藏=敏感↑  D不失去自己=保护↑
+      [[3,1,1,2,3,2],[1,3,2,1,1,3],[2,2,3,2,1,2],[2,1,1,3,2,1]]
+    ]
+  },
+
+  // ── 套二：你的恋爱边界感属于哪一型 ────────────────────────────────────────
+  // 维度：边界清晰 / 自我牺牲 / 情绪承接 / 表达直接 / 关系依赖 / 内心隐忍
+  {
+    dims: ["边界清晰", "自我牺牲", "情绪承接", "表达直接", "关系依赖", "内心隐忍"],
+    weights: [
+      // Q1 临时被约
+      // A看情况=边界中  B大概率答应=牺牲↑依赖↑  C心里不想嘴上不拒绝=牺牲↑隐忍↑  D直说不行=边界↑表达↑
+      [[2,2,2,2,2,2],[1,3,2,1,3,2],[1,2,2,1,2,3],[3,1,1,3,1,1]],
+      // Q2 对方倾倒负面情绪
+      // A听但不全接=边界↑  B一直安慰=牺牲↑承接↑  C表面镇定事后被影响=承接↑隐忍↑  D分辨该不该承担=边界↑表达↑
+      [[3,1,2,2,1,1],[1,3,3,1,2,2],[2,2,3,1,2,3],[3,1,1,3,1,1]],
+      // Q3 生活重心
+      // A基本不变=边界↑  B明显向对方倾斜=牺牲↑依赖↑  C情绪受影响=承接↑隐忍↑  D刻意提醒自己=边界↑
+      [[3,1,1,2,1,1],[1,3,2,1,3,2],[2,2,3,1,2,3],[3,1,1,2,1,2]],
+      // Q4 自己不开心时
+      // A直接说需求=表达↑边界↑  B先忍=牺牲↑隐忍↑  C希望对方察觉=依赖↑承接↑  D梳理再表达=边界↑表达↑
+      [[3,1,1,3,1,1],[1,3,1,1,2,3],[2,1,3,1,3,2],[3,1,1,3,1,1]],
+      // Q5 对方越界
+      // A直接说=表达↑边界↑  B先忍=牺牲↑隐忍↑  C当下不说之后别扭=隐忍↑承接↑  D明确底线=边界↑表达↑
+      [[3,1,1,3,1,1],[1,3,1,1,2,3],[2,2,2,1,2,3],[3,1,1,3,1,1]],
+      // Q6 关系里最像的状态
+      // A有亲密有空间=边界↑  B把对方需求放前面=牺牲↑依赖↑  C经常说没事心里有事=隐忍↑承接↑  D保护自己节奏=边界↑
+      [[3,1,1,2,1,1],[1,3,2,1,3,2],[2,2,3,1,2,3],[3,1,1,2,1,1]],
+      // Q7 对方需要你时
+      // A能力范围内=边界↑  B先帮了不考虑自己=牺牲↑隐忍↑  C身体疲惫=承接↑隐忍↑  D先判断合理性=边界↑表达↑
+      [[3,1,1,2,1,1],[1,3,1,1,2,3],[2,2,3,1,2,3],[3,1,1,3,1,1]],
+      // Q8 最像你的话
+      // A爱你但有自己生活=边界↑  B可以委屈=牺牲↑隐忍↑  C后知后觉不舒服=隐忍↑承接↑  D不需要牺牲=边界↑表达↑
+      [[3,1,1,2,1,1],[1,3,1,1,2,3],[2,2,3,1,2,3],[3,1,1,3,1,1]]
+    ]
+  },
+
+  // ── 套三：你为什么总吸引不到对的人 ────────────────────────────────────────
+  // 维度：选择理智 / 情绪优先 / 暧昧敏感 / 防御自保 / 投入速度 / 自我认知
+  {
+    dims: ["选择理智", "情绪优先", "暧昧敏感", "防御自保", "投入速度", "自我认知"],
+    weights: [
+      // Q1 遇到心动的人
+      // A先观察=理智↑自我认知↑  B很快投入=情绪↑投入↑  C想很多不主动=暧昧↑防御↑  D先告诉自己别认真=防御↑
+      [[3,1,1,2,1,3],[1,3,1,1,3,2],[2,2,3,3,2,2],[2,1,2,3,1,2]],
+      // Q2 被哪种人吸引
+      // A情绪稳定=理智↑  B有热情回馈=情绪↑投入↑  C有点难懂让你猜=暧昧↑  D看起来强大=防御↑依赖
+      [[3,1,1,2,1,3],[2,3,1,1,3,2],[1,2,3,2,2,2],[2,2,2,3,2,1]],
+      // Q3 关系开始时最在意
+      // A价值观=理智↑自我认知  B对方在不在乎我=情绪↑投入↑  C对方怎么想=暧昧↑  D保持体面=防御↑
+      [[3,1,1,2,1,3],[1,3,2,1,3,2],[2,2,3,2,2,2],[2,1,1,3,1,2]],
+      // Q4 过去关系常见问题
+      // A发现不合适=理智↑  B我投入更快=情绪↑投入↑  C一直猜耗累=暧昧↑  D太克制关系进不去=防御↑
+      [[3,1,1,2,1,3],[1,3,2,1,3,1],[2,2,3,2,2,2],[2,1,1,3,1,2]],
+      // Q5 对方忽冷忽热
+      // A观察一阵不合适就算=理智↑  B更想确认态度=情绪↑投入↑  C被牵动情绪=暧昧↑情绪↑  D立刻撤退=防御↑
+      [[3,1,1,2,1,3],[1,3,2,1,3,2],[2,3,3,2,2,2],[2,1,1,3,1,2]],
+      // Q6 感情里的隐形习惯
+      // A先判断能不能长期=理智↑  B用付出换确定感=情绪↑投入↑  C把模糊信号放大=暧昧↑  D不太显露=防御↑
+      [[3,1,1,2,1,3],[1,3,2,1,3,2],[2,2,3,2,2,2],[2,1,1,3,1,2]],
+      // Q7 最像的状态
+      // A不缺喜欢少有心动=理智↑  B一旦心动就认真=情绪↑投入↑  C卡在暧昧猜测=暧昧↑  D想靠近却先退=防御↑
+      [[3,1,1,2,1,3],[1,3,2,1,3,2],[2,2,3,2,2,2],[2,1,1,3,1,2]],
+      // Q8 最需要解决的
+      // A提高筛选效率=理智↑  B别真心给太快=投入↑自我认知  C停止脑补=暧昧↑自我认知  D放下防御=防御↑自我认知
+      [[3,1,1,2,1,3],[2,2,1,1,3,3],[2,2,3,2,2,3],[2,1,1,3,1,3]]
+    ]
+  }
+];
+
+// 计分：对每个维度，统计用户选项得分 / 该维度理论最大分
+// 为避免极端，对原始比值做线性映射到 [0.18, 0.82] 区间
+function computeRadarScores(quizIdx, answers) {
+  const meta = RADAR_META[quizIdx];
+  const n = meta.dims.length;
+  const totals = new Array(n).fill(0);
+  const maxPossible = new Array(n).fill(0);
+  const minPossible = new Array(n).fill(0);
+
+  answers.forEach((ans, qi) => {
+    if (ans === null || !meta.weights[qi]) return;
+    const row = meta.weights[qi][ans];
+    row.forEach((v, di) => { totals[di] += v; });
+    for (let di = 0; di < n; di++) {
+      const vals = meta.weights[qi].map(r => r[di]);
+      maxPossible[di] += Math.max(...vals);
+      minPossible[di] += Math.min(...vals);
+    }
+  });
+
+  return totals.map((v, i) => {
+    const span = maxPossible[i] - minPossible[i];
+    if (span === 0) return 0.5;
+    // 归一化到 [0,1]
+    const raw = (v - minPossible[i]) / span;
+    // 映射到 [0.20, 0.80]，确保不出现0/100极端
+    return 0.20 + raw * 0.60;
+  });
+}
+
+function drawRadar(quizIdx, answers) {
+  const canvas = document.getElementById('radar-canvas');
+  const dpr = window.devicePixelRatio || 1;
+  const size = Math.min(window.innerWidth - 60, 340);
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const W = size, H = size;
+  const meta = RADAR_META[quizIdx];
+  const dims = meta.dims;
+  const n = dims.length;
+  const scores = computeRadarScores(quizIdx, answers);
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) * 0.30;
+  const levels = 4;
+
+  const colorMist = '#e8d5db';
+  const colorMauve = '#8b5a6e';
+  const colorRose = '#c8697a';
+  const colorFill = 'rgba(200,105,122,0.18)';
+  const colorGold = '#d4a853';
+
+  function angleOf(i) { return (Math.PI * 2 * i / n) - Math.PI / 2; }
+  function polar(r, i) {
+    const a = angleOf(i);
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  }
+
+  function drawGrid() {
+    for (let l = 1; l <= levels; l++) {
+      const r = R * (l / levels);
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const [x, y] = polar(r, i);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = colorMist;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      if (l === levels) {
+        ctx.fillStyle = 'rgba(232,213,219,0.10)';
+        ctx.fill();
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      const [x, y] = polar(R, i);
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y);
+      ctx.strokeStyle = colorMist; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+
+  function drawLabels() {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = colorMauve;
+    for (let i = 0; i < n; i++) {
+      const labelR = R + 32;
+      const [x, y] = polar(labelR, i);
+      ctx.font = `600 ${Math.round(size * 0.04)}px "Noto Serif SC", serif`;
+      ctx.fillText(dims[i], x, y);
+    }
+  }
+
+  let progress = 0;
+  const startTime = performance.now();
+
+  function frame(now) {
+    progress = Math.min((now - startTime) / 850, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+
+    ctx.clearRect(0, 0, W, H);
+    drawGrid();
+
+    // Data polygon
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const r = R * 0.08 + R * 0.92 * scores[i] * ease;
+      const [x, y] = polar(r, i);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = colorFill;
+    ctx.fill();
+    // Gradient stroke
+    ctx.strokeStyle = colorRose;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Dots + score labels
+    for (let i = 0; i < n; i++) {
+      const r = R * 0.08 + R * 0.92 * scores[i] * ease;
+      const [x, y] = polar(r, i);
+      // glow
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, 10);
+      grd.addColorStop(0, 'rgba(200,105,122,0.3)');
+      grd.addColorStop(1, 'rgba(200,105,122,0)');
+      ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = grd; ctx.fill();
+      // dot
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = colorRose; ctx.fill();
+      ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    // Percentage labels (fade in near end)
+    if (ease > 0.75) {
+      const alpha = (ease - 0.75) / 0.25;
+      ctx.globalAlpha = alpha;
+      ctx.font = `500 ${Math.round(size * 0.038)}px "Noto Serif SC", serif`;
+      ctx.fillStyle = colorRose;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (let i = 0; i < n; i++) {
+        const r = R * 0.08 + R * 0.92 * scores[i];
+        const angle = angleOf(i);
+        const offset = 17;
+        const x = cx + (r + offset) * Math.cos(angle);
+        const y = cy + (r + offset) * Math.sin(angle);
+        ctx.fillText(Math.round(scores[i] * 100) + '%', x, y);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    drawLabels();
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // Legend
+  const legend = document.getElementById('radar-legend');
+  legend.innerHTML = '';
+  dims.forEach((d, i) => {
+    const pct = Math.round(scores[i] * 100);
+    const item = document.createElement('div');
+    item.className = 'radar-legend-item';
+    item.innerHTML = `<span class="radar-legend-dot"></span><span>${d}&nbsp;<b style="color:var(--rose)">${pct}%</b></span>`;
+    legend.appendChild(item);
+  });
 }
 </script>
 </body>
