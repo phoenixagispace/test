@@ -1,361 +1,588 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>测测你的恋爱边界感属于哪一型</title>
-  <style>
-    :root {
-      --bg: #f8f4f1;
-      --card: #ffffff;
-      --text: #3b2f2f;
-      --sub: #7a6666;
-      --line: #eadfdb;
-      --accent: #d99c9c;
-      --accent-dark: #b87575;
-      --shadow: 0 10px 30px rgba(76, 53, 53, 0.08);
-      --radius: 22px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恋爱心理测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #c8697a;
+    --blush: #f2c4cc;
+    --cream: #fdf6f0;
+    --ink: #2a1f2d;
+    --mauve: #8b5a6e;
+    --gold: #d4a853;
+    --soft: #f7eee8;
+    --mist: #e8d5db;
+  }
 
-    * { box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-      background: linear-gradient(180deg, #fbf7f5 0%, #f5efeb 100%);
-      color: var(--text);
-      line-height: 1.6;
-    }
+  body {
+    background: var(--cream);
+    font-family: 'Noto Serif SC', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 28px 16px 48px;
-    }
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(200,105,122,.10) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(139,90,110,.09) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(242,196,204,.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
 
-    .hero, .card, .result-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
+  /* ── Cover ── */
+  #cover {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
 
-    .hero {
-      padding: 28px;
-      margin-bottom: 18px;
-    }
+  .cover-deco {
+    font-size: 48px; margin-bottom: 16px;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-8px); }
+  }
 
-    .tag {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #f8e2e2;
-      color: var(--accent-dark);
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
+  .cover-eyebrow {
+    font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--mauve); margin-bottom: 20px;
+  }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 32px;
-      line-height: 1.25;
-    }
+  .cover-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(28px, 6vw, 48px);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 520px;
+  }
 
-    .desc {
-      margin: 0;
-      color: var(--sub);
-      font-size: 15px;
-    }
+  .cover-sub {
+    font-size: 14px; color: var(--mauve); max-width: 380px;
+    line-height: 1.8; margin-bottom: 40px;
+  }
 
-    .card {
-      padding: 22px;
-      margin: 16px 0;
-    }
+  .quiz-cards {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    justify-content: center; max-width: 700px;
+    margin-bottom: 50px;
+  }
 
-    .question-title {
-      font-size: 20px;
-      margin: 0 0 14px;
-    }
+  .quiz-card {
+    background: white;
+    border: 1.5px solid var(--mist);
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: 200px; text-align: left;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative; overflow: hidden;
+  }
+  .quiz-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--blush), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .quiz-card:hover { transform: translateY(-4px); border-color: var(--rose); box-shadow: 0 12px 32px rgba(200,105,122,.18); }
+  .quiz-card:hover::after { opacity: .3; }
+  .quiz-card .num { font-size: 28px; margin-bottom: 10px; }
+  .quiz-card .ctitle { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.5; margin-bottom: 6px; }
+  .quiz-card .cdesc { font-size: 11px; color: var(--mauve); line-height: 1.6; }
 
-    .options {
-      display: grid;
-      gap: 12px;
-    }
+  .btn-start {
+    display: inline-block;
+    background: var(--rose);
+    color: white; border: none;
+    padding: 14px 44px; border-radius: 50px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px; cursor: pointer;
+    transition: all .3s;
+    box-shadow: 0 6px 20px rgba(200,105,122,.35);
+  }
+  .btn-start:hover { background: var(--mauve); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(139,90,110,.35); }
 
-    .option {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: #fffdfc;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+  /* ── Quiz screen ── */
+  #quiz-screen {
+    display: none; position: relative; z-index: 1;
+    min-height: 100vh; padding: 30px 20px 60px;
+    max-width: 640px; margin: 0 auto;
+  }
 
-    .option:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
+  .q-header {
+    text-align: center; padding: 30px 0 20px;
+    border-bottom: 1px solid var(--mist);
+    margin-bottom: 32px;
+  }
+  .q-set-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(18px, 4vw, 26px); color: var(--rose);
+    line-height: 1.5; margin-bottom: 8px;
+  }
+  .q-set-sub { font-size: 12px; color: var(--mauve); letter-spacing: 2px; }
 
-    .option input {
-      margin-top: 3px;
-      accent-color: var(--accent-dark);
-      transform: scale(1.15);
-    }
+  /* progress */
+  .progress-wrap { margin-bottom: 28px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--mauve); margin-bottom: 8px; }
+  .progress-bar { height: 4px; background: var(--mist); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--gold)); border-radius: 99px; transition: width .5s ease; }
 
-    .option-text {
-      flex: 1;
-      font-size: 15px;
-    }
+  /* question card */
+  .q-card {
+    background: white;
+    border: 1.5px solid var(--mist);
+    border-radius: 20px; padding: 32px;
+    margin-bottom: 20px;
+    animation: fadeSlide .4s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-number { font-size: 11px; letter-spacing: 3px; color: var(--rose); margin-bottom: 12px; }
+  .q-text { font-size: 16px; line-height: 1.9; color: var(--ink); margin-bottom: 24px; }
 
-    .actions {
-      position: sticky;
-      bottom: 12px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      padding-top: 16px;
-      margin-top: 8px;
-    }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--soft); border: 1.5px solid transparent;
+    border-radius: 12px; padding: 14px 18px;
+    cursor: pointer; transition: all .25s;
+    font-size: 14px; line-height: 1.7; color: var(--ink);
+  }
+  .opt:hover { border-color: var(--rose); background: white; }
+  .opt.selected { border-color: var(--rose); background: white; box-shadow: 0 4px 14px rgba(200,105,122,.15); }
+  .opt-letter {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: var(--mist); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--mauve);
+    transition: all .25s;
+  }
+  .opt.selected .opt-letter { background: var(--rose); color: white; }
 
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow);
-    }
+  .q-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+  .btn-prev, .btn-next {
+    padding: 11px 28px; border-radius: 50px;
+    border: 1.5px solid var(--mist);
+    background: white; font-family: 'Noto Serif SC', serif;
+    font-size: 14px; color: var(--ink); cursor: pointer;
+    transition: all .25s;
+  }
+  .btn-prev:hover { border-color: var(--mauve); color: var(--mauve); }
+  .btn-next { background: var(--rose); color: white; border-color: var(--rose); box-shadow: 0 4px 14px rgba(200,105,122,.3); }
+  .btn-next:hover { background: var(--mauve); border-color: var(--mauve); }
+  .btn-next:disabled { background: var(--mist); border-color: var(--mist); color: #aaa; box-shadow: none; cursor: not-allowed; }
 
-    .primary {
-      background: var(--accent-dark);
-      color: white;
-    }
+  .btn-back-cover { font-size: 12px; color: var(--mauve); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
-    .primary:hover { opacity: 0.92; }
+  /* ── Result screen ── */
+  #result-screen {
+    display: none; position: relative; z-index: 1;
+    min-height: 100vh; padding: 40px 20px 80px;
+    max-width: 640px; margin: 0 auto;
+  }
 
-    .secondary {
-      background: white;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
+  .result-deco { text-align: center; font-size: 48px; margin-bottom: 20px; animation: float 4s ease-in-out infinite; }
 
-    .result-card {
-      display: none;
-      padding: 28px;
-      margin-top: 22px;
-    }
+  .result-card {
+    background: white;
+    border: 1.5px solid var(--mist);
+    border-radius: 24px; padding: 36px 32px;
+    text-align: center; margin-bottom: 24px;
+    box-shadow: 0 16px 48px rgba(200,105,122,.10);
+  }
+  .result-label { font-size: 11px; letter-spacing: 4px; color: var(--mauve); margin-bottom: 10px; }
+  .result-type {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(22px, 5vw, 34px); color: var(--rose);
+    margin-bottom: 20px; line-height: 1.4;
+  }
+  .result-divider {
+    width: 50px; height: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    margin: 0 auto 20px; border-radius: 2px;
+  }
+  .result-desc {
+    font-size: 14px; line-height: 2; color: #4a3a44;
+    text-align: left; margin-bottom: 20px;
+  }
 
-    .result-type {
-      font-size: 28px;
-      margin: 6px 0 10px;
-    }
+  .hook-box {
+    background: linear-gradient(135deg, #fff5f7, #fdf0ea);
+    border: 1.5px solid var(--blush);
+    border-radius: 14px; padding: 18px 20px;
+    text-align: left; margin-top: 10px;
+  }
+  .hook-label { font-size: 10px; letter-spacing: 3px; color: var(--rose); margin-bottom: 8px; }
+  .hook-text { font-size: 13px; color: var(--mauve); line-height: 1.8; }
 
-    .result-score {
-      color: var(--sub);
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
+  .score-badge {
+    display: inline-block;
+    background: var(--soft); border: 1px solid var(--mist);
+    border-radius: 50px; padding: 6px 18px;
+    font-size: 12px; color: var(--mauve); margin-bottom: 24px;
+  }
 
-    .result-body {
-      font-size: 16px;
-      white-space: pre-line;
-    }
+  .result-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .btn-retry {
+    padding: 13px; border-radius: 50px;
+    border: 1.5px solid var(--rose); background: white;
+    color: var(--rose); font-family: 'Noto Serif SC', serif;
+    font-size: 14px; cursor: pointer; transition: all .25s;
+  }
+  .btn-retry:hover { background: var(--rose); color: white; }
+  .btn-home {
+    padding: 13px; border-radius: 50px;
+    border: 1.5px solid var(--mist); background: white;
+    color: var(--mauve); font-family: 'Noto Serif SC', serif;
+    font-size: 14px; cursor: pointer; transition: all .25s;
+  }
+  .btn-home:hover { border-color: var(--mauve); }
 
-    .tips {
-      margin-top: 18px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: #fcf7f4;
-      border: 1px dashed var(--line);
-      color: var(--sub);
-      font-size: 14px;
-    }
-
-    .footer-note {
-      margin-top: 16px;
-      color: #8d7b7b;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    @media (max-width: 640px) {
-      h1 { font-size: 26px; }
-      .question-title { font-size: 18px; }
-      .hero, .card, .result-card { padding: 18px; }
-      .actions { flex-direction: column; }
-      button { width: 100%; }
-    }
-  </style>
+  /* ── Decorative floaters ── */
+  .floater {
+    position: fixed; pointer-events: none;
+    opacity: .06; font-size: 120px; z-index: 0;
+  }
+  .f1 { top: 5%; left: -2%; animation: drift 18s ease-in-out infinite; }
+  .f2 { bottom: 10%; right: -2%; animation: drift 22s ease-in-out infinite reverse; }
+  @keyframes drift {
+    0%,100% { transform: rotate(-8deg) scale(1); }
+    50%     { transform: rotate(8deg) scale(1.05); }
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <section class="hero">
-      <div class="tag">情感测试 · 娱乐版</div>
-      <h1>测测你的恋爱边界感属于哪一型</h1>
-      <p class="desc">
-        8道题，帮你看看自己在关系里，是能稳定做自己，还是更容易迁就、压抑，或者过度防御。
-        本测试仅供娱乐与自我探索参考，不构成任何医学、心理诊断或治疗建议。
-      </p>
-    </section>
 
-    <form id="quizForm">
-      <div class="card">
-        <h2 class="question-title">1. 对方临时约你，你原本已经安排好自己的事，你会：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q1" value="1"><span class="option-text">A. 看情况，能改就改</span></label>
-          <label class="option"><input type="radio" name="q1" value="2"><span class="option-text">B. 大概率答应，不想扫兴</span></label>
-          <label class="option"><input type="radio" name="q1" value="3"><span class="option-text">C. 心里不太想，但嘴上不好拒绝</span></label>
-          <label class="option"><input type="radio" name="q1" value="4"><span class="option-text">D. 直接说今天不行，改天再约</span></label>
-        </div>
-      </div>
+<div class="floater f1">🌸</div>
+<div class="floater f2">🌹</div>
 
-      <div class="card">
-        <h2 class="question-title">2. 当对方向你倾倒很多负面情绪时，你通常会：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q2" value="1"><span class="option-text">A. 听一听，但不会全接住</span></label>
-          <label class="option"><input type="radio" name="q2" value="2"><span class="option-text">B. 忍不住一直安慰，想让他好起来</span></label>
-          <label class="option"><input type="radio" name="q2" value="3"><span class="option-text">C. 表面镇定，事后自己也被影响</span></label>
-          <label class="option"><input type="radio" name="q2" value="4"><span class="option-text">D. 会分辨这是不是我该承担的</span></label>
-        </div>
-      </div>
+<!-- ═══════════ COVER ═══════════ -->
+<div id="cover">
+  <div class="cover-deco">💌</div>
+  <div class="cover-eyebrow">情感测试系列</div>
+  <h1 class="cover-title">你在恋爱里<br>究竟是什么模样？</h1>
+  <p class="cover-sub">选一套你最想了解自己的方向，<br>8道题，看见那个藏在关系里的自己。</p>
 
-      <div class="card">
-        <h2 class="question-title">3. 恋爱后，你的生活重心通常会：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q3" value="1"><span class="option-text">A. 基本不变，恋爱只是其中一部分</span></label>
-          <label class="option"><input type="radio" name="q3" value="2"><span class="option-text">B. 会明显向对方倾斜</span></label>
-          <label class="option"><input type="radio" name="q3" value="3"><span class="option-text">C. 看起来不变，但情绪很受对方影响</span></label>
-          <label class="option"><input type="radio" name="q3" value="4"><span class="option-text">D. 会刻意提醒自己别失衡</span></label>
-        </div>
-      </div>
+  <div class="quiz-cards">
+    <div class="quiz-card" onclick="startQuiz(0)">
+      <div class="num">💔</div>
+      <div class="ctitle">你在恋爱里最容易输在哪一步</div>
+      <div class="cdesc">为什么我一认真就容易受伤？</div>
+    </div>
+    <div class="quiz-card" onclick="startQuiz(1)">
+      <div class="num">🌿</div>
+      <div class="ctitle">你的恋爱边界感属于哪一型</div>
+      <div class="cdesc">亲密与自我，你找到平衡了吗？</div>
+    </div>
+    <div class="quiz-card" onclick="startQuiz(2)">
+      <div class="num">🧲</div>
+      <div class="ctitle">你为什么总吸引不到对的人</div>
+      <div class="cdesc">问题不是眼光，而是这里……</div>
+    </div>
+  </div>
+  <button class="btn-start" onclick="startQuiz(0)">随机开始测试 →</button>
+</div>
 
-      <div class="card">
-        <h2 class="question-title">4. 当你不开心时，你更习惯：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q4" value="1"><span class="option-text">A. 直接说出需求</span></label>
-          <label class="option"><input type="radio" name="q4" value="2"><span class="option-text">B. 先忍一忍，怕显得矫情</span></label>
-          <label class="option"><input type="radio" name="q4" value="3"><span class="option-text">C. 希望对方自己察觉</span></label>
-          <label class="option"><input type="radio" name="q4" value="4"><span class="option-text">D. 先梳理清楚再表达</span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="question-title">5. 对方偶尔越界，比如翻你手机、替你做决定，你更可能：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q5" value="1"><span class="option-text">A. 不舒服会直接说</span></label>
-          <label class="option"><input type="radio" name="q5" value="2"><span class="option-text">B. 会先忍，因为怕影响气氛</span></label>
-          <label class="option"><input type="radio" name="q5" value="3"><span class="option-text">C. 当下不说，之后越想越别扭</span></label>
-          <label class="option"><input type="radio" name="q5" value="4"><span class="option-text">D. 会明确告诉对方你的底线</span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="question-title">6. 关系里最像你的状态是：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q6" value="1"><span class="option-text">A. 有亲密，也有自己的空间</span></label>
-          <label class="option"><input type="radio" name="q6" value="2"><span class="option-text">B. 很容易把对方的需求放前面</span></label>
-          <label class="option"><input type="radio" name="q6" value="3"><span class="option-text">C. 经常说没事，其实心里有事</span></label>
-          <label class="option"><input type="radio" name="q6" value="4"><span class="option-text">D. 在意归在意，但会保护自己的节奏</span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="question-title">7. 当对方需要你时，你最容易：</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q7" value="1"><span class="option-text">A. 在能力范围内支持</span></label>
-          <label class="option"><input type="radio" name="q7" value="2"><span class="option-text">B. 先帮了再说，很少考虑自己累不累</span></label>
-          <label class="option"><input type="radio" name="q7" value="3"><span class="option-text">C. 嘴上没意见，身体已经很疲惫</span></label>
-          <label class="option"><input type="radio" name="q7" value="4"><span class="option-text">D. 先判断这是不是合理需求</span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="question-title">8. 下面哪句话更像你？</h2>
-        <div class="options">
-          <label class="option"><input type="radio" name="q8" value="1"><span class="option-text">A. “我爱你，但我也有我自己的生活。”</span></label>
-          <label class="option"><input type="radio" name="q8" value="2"><span class="option-text">B. “只要你开心，我可以委屈一点。”</span></label>
-          <label class="option"><input type="radio" name="q8" value="3"><span class="option-text">C. “我总在关系里后知后觉地不舒服。”</span></label>
-          <label class="option"><input type="radio" name="q8" value="4"><span class="option-text">D. “真正舒服的关系，不需要谁一直牺牲。”</span></label>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="primary" onclick="calculateResult()">查看测试结果</button>
-        <button type="reset" class="secondary" onclick="resetResult()">重新作答</button>
-      </div>
-    </form>
-
-    <section id="result" class="result-card" aria-live="polite"></section>
-
-    <p class="footer-note">提示：这是一页单文件 HTML，可直接保存后在浏览器打开，也可以继续改成小红书引流页、H5测试页或付费版落地页。</p>
+<!-- ═══════════ QUIZ ═══════════ -->
+<div id="quiz-screen">
+  <div class="q-header">
+    <div class="q-set-title" id="q-set-title"></div>
+    <div class="q-set-sub">共 8 题 · 选出最符合你的答案</div>
   </div>
 
-  <script>
-    const results = [
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-text">第 1 题</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="q-card" class="q-card">
+    <div class="q-number" id="q-num"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-opts"></div>
+  </div>
+
+  <div class="q-nav">
+    <button class="btn-prev" id="btn-prev" onclick="prevQ()">← 上一题</button>
+    <span class="btn-back-cover" onclick="goHome()">返回首页</span>
+    <button class="btn-next" id="btn-next" onclick="nextQ()" disabled>下一题 →</button>
+  </div>
+</div>
+
+<!-- ═══════════ RESULT ═══════════ -->
+<div id="result-screen">
+  <div class="result-deco" id="r-deco"></div>
+  <div class="result-card">
+    <div class="result-label">你的测试结果</div>
+    <div class="result-type" id="r-type"></div>
+    <div class="score-badge" id="r-score"></div>
+    <div class="result-divider"></div>
+    <div class="result-desc" id="r-desc"></div>
+    <div class="hook-box">
+      <div class="hook-label">✦ 延伸了解</div>
+      <div class="hook-text" id="r-hook"></div>
+    </div>
+  </div>
+  <div class="result-actions">
+    <button class="btn-retry" id="btn-retry" onclick="retryQuiz()">重新测试这套</button>
+    <button class="btn-home" onclick="goHome()">返回首页，换套测试</button>
+  </div>
+</div>
+
+<script>
+const QUIZZES = [
+  {
+    title: "你在恋爱里最容易输在哪一步",
+    emoji: "💔",
+    questions: [
       {
-        min: 8,
-        max: 12,
-        title: '稳定边界型',
-        body: '你很懂得在亲密和自我之间找平衡。你不会因为恋爱就失去自己的节奏，也不会用牺牲换安全感。\n\n你的优势是成熟、稳定、沟通清晰。你知道爱一个人，不等于把自己的时间、情绪和边界都交出去。\n\n你现阶段最值得保持的，是这种既能靠近、又能做自己的能力。\n\n钩子方向：你吸引什么类型的人，可以放进完整版报告。'
+        text: "对方突然回复变慢时，你第一反应通常是：",
+        opts: ["先等等，可能他在忙","开始想自己是不是说错了什么","表面无所谓，心里会反复猜","直接告诉自己别太上头"]
       },
       {
-        min: 13,
-        max: 17,
-        title: '温柔迁就型',
-        body: '你很会照顾别人，也很容易把对方放进自己的优先级。你的温柔很珍贵，但也容易让你习惯性委屈自己。\n\n你不是没有边界，而是总会先想到“这样做会不会让对方失望”。\n\n你需要练习的，不是变冷，而是让爱里也有你自己的位置。\n\n钩子方向：你最容易在哪类关系里吃亏，适合做进阶版内容。'
+        text: "当你喜欢上一个人后，你更容易出现哪种状态？",
+        opts: ["会慢慢观察，不急着投入","会不自觉把很多注意力放他身上","嘴上很冷静，心里已经想很多了","会先克制自己，不想显得太主动"]
       },
       {
-        min: 18,
-        max: 22,
-        title: '隐忍压抑型',
-        body: '你不是没有边界，而是总在当下说不出口。很多不舒服你会先吞下，等到累积多了才突然难受。\n\n你的优点是体谅、克制、懂分寸；但真正稳定的关系，靠的不是忍。\n\n你需要的不是更懂事，而是更及时地表达自己的真实感受。\n\n钩子方向：你的高频委屈场景，可以作为完整版解锁内容。'
+        text: "对方一句有点冷淡的话，最像你的反应是：",
+        opts: ["先看整体，不会立刻下结论","容易一下子情绪低落","会记在心里，但不太说","会提醒自己及时抽离"]
       },
       {
-        min: 23,
-        max: 32,
-        title: '清醒守界型',
-        body: '你对边界很敏感，也很清楚什么是自己能给的、什么不是。你的优势是自尊感强，不容易被关系吞没。\n\n你很会保护自己，也懂得及时踩刹车。\n\n不过有时也可能因为过度防御，让别人很难真正靠近你。\n\n钩子方向：你适合什么样的亲密距离，很适合延伸成下一页报告。'
+        text: "你在关系里最怕的是：",
+        opts: ["两个人方向不一致","自己太投入，对方却没那么认真","明明在意，却一直猜不透对方","失去分寸，变成围着别人转"]
+      },
+      {
+        text: "当对方情绪不好时，你更可能：",
+        opts: ["给空间，等他想说再说","忍不住想安抚、想帮他解决","默默观察，但自己也会被影响","先保护自己，不会全接住"]
+      },
+      {
+        text: "你在关系里最常做的一件事是：",
+        opts: ["先确认彼此适不适合","下意识照顾对方感受","表面平静，内心反复复盘细节","明明在意，却装得很淡"]
+      },
+      {
+        text: "如果关系开始变得不确定，你通常会：",
+        opts: ["直接沟通，想弄清楚","更努力一点，想把关系拉回来","不停猜测，自己先内耗","先后退一步，降低期待"]
+      },
+      {
+        text: "下面哪句话最像你？",
+        opts: ["「我想要的是稳定和清晰。」","「我总是会不自觉对别人太好。」","「我不是没感觉，是太会藏了。」","「我可以喜欢，但不想失去自己。」"]
       }
-    ];
-
-    function calculateResult() {
-      const form = document.getElementById('quizForm');
-      const totalQuestions = 8;
-      let score = 0;
-
-      for (let i = 1; i <= totalQuestions; i++) {
-        const checked = form.querySelector(`input[name="q${i}"]:checked`);
-        if (!checked) {
-          alert(`第 ${i} 题还没有作答哦`);
-          return;
-        }
-        score += Number(checked.value);
+    ],
+    results: [
+      { range:[8,12], emoji:"🌙", type:"清醒观察型", desc:"你不是慢热，只是不会随便把真心交出去。你对关系有判断力，知道喜欢和合适不是一回事。你的优势是稳，不容易被情绪带跑；需要注意的是，别因为太理性错过真正值得的人。", hook:"你的「理想伴侣沟通风格」值得深度了解，完整版里有专属分析。" },
+      { range:[13,17], emoji:"🌷", type:"高敏投入型", desc:"你不是恋爱脑，而是很容易认真。你对关系变化感知很快，也愿意为喜欢的人付出。你的优点是温柔、真诚、有回应力；但要练习的，是别总把别人的态度翻译成自己的问题。", hook:"你的「情绪触发点」适合做深度复盘，完整版有更细的拆解。" },
+      { range:[18,22], emoji:"🌊", type:"内耗猜测型", desc:"你表面稳，心里其实很容易反复想。你不是不清醒，而是在意的时候太容易把细节放大。你的优势是细腻、有共情力；卡点是容易让猜测替代沟通。", hook:"完整版可接「你在关系里最该补的能力」，帮你找到破局点。" },
+      { range:[23,32], emoji:"🛡️", type:"防御清醒型", desc:"你不是冷淡，只是很怕自己失控。你很知道分寸，也很懂得自保。你的优点是边界感强，不容易被人牵着走；但关系里有时也会因为太早抽离，错过深入连接。", hook:"完整版可接「你最适合的恋爱节奏」，找到那个让你能放松的频率。" }
+    ]
+  },
+  {
+    title: "你的恋爱边界感属于哪一型",
+    emoji: "🌿",
+    questions: [
+      {
+        text: "对方临时约你，你原本已经安排好自己的事，你会：",
+        opts: ["看情况，能改就改","大概率答应，不想扫兴","心里不太想，但嘴上不好拒绝","直接说今天不行，改天再约"]
+      },
+      {
+        text: "当对方向你倾倒很多负面情绪时，你通常会：",
+        opts: ["听一听，但不会全接住","忍不住一直安慰，想让他好起来","表面镇定，事后自己也被影响","会分辨这是不是我该承担的"]
+      },
+      {
+        text: "恋爱后，你的生活重心通常会：",
+        opts: ["基本不变，恋爱只是其中一部分","会明显向对方倾斜","看起来不变，但情绪很受对方影响","会刻意提醒自己别失衡"]
+      },
+      {
+        text: "当你不开心时，你更习惯：",
+        opts: ["直接说出需求","先忍一忍，怕显得矫情","希望对方自己察觉","先梳理清楚再表达"]
+      },
+      {
+        text: "对方偶尔越界，比如翻你手机、替你做决定，你更可能：",
+        opts: ["不舒服会直接说","会先忍，因为怕影响气氛","当下不说，之后越想越别扭","会明确告诉对方你的底线"]
+      },
+      {
+        text: "关系里最像你的状态是：",
+        opts: ["有亲密，也有自己的空间","很容易把对方的需求放前面","经常说没事，其实心里有事","在意归在意，但会保护自己的节奏"]
+      },
+      {
+        text: "当对方需要你时，你最容易：",
+        opts: ["在能力范围内支持","先帮了再说，很少考虑自己累不累","嘴上没意见，身体已经很疲惫","先判断这是不是合理需求"]
+      },
+      {
+        text: "下面哪句话更像你？",
+        opts: ["「我爱你，但我也有我自己的生活。」","「只要你开心，我可以委屈一点。」","「我总在关系里后知后觉地不舒服。」","「真正舒服的关系，不需要谁一直牺牲。」"]
       }
+    ],
+    results: [
+      { range:[8,12], emoji:"⚖️", type:"稳定边界型", desc:"你很懂得在亲密和自我之间找平衡。你不会因为恋爱就失去自己的节奏，也不会用牺牲换安全感。你的优势是成熟、稳定、沟通清晰。", hook:"完整版可接「你吸引什么类型的人」，了解你在对方眼里的吸引力密码。" },
+      { range:[13,17], emoji:"🌸", type:"温柔迁就型", desc:"你很会照顾别人，也很容易把对方放进自己的优先级。你的温柔很珍贵，但也容易让你习惯性委屈自己。你需要练习的，不是变冷，而是让爱里也有你的份。", hook:"完整版可接「你最容易在哪类关系里吃亏」，识别高风险相处模式。" },
+      { range:[18,22], emoji:"🫧", type:"隐忍压抑型", desc:"你不是没有边界，而是总在当下说不出口。很多不舒服你会先吞下，等到累积多了才突然难受。你的优点是体谅和克制；但真正稳定的关系，靠的不是忍。", hook:"完整版可接「你的高频委屈场景」，帮你找到说出口的方式。" },
+      { range:[23,32], emoji:"🏔️", type:"清醒守界型", desc:"你对边界很敏感，也很清楚什么是自己能给的、什么不是。你的优势是自尊感强，不容易被关系吞没；但有时也可能因为过度防御，让别人很难靠近。", hook:"完整版可接「你适合什么样的亲密距离」，找到让你既安全又温柔的相处方式。" }
+    ]
+  },
+  {
+    title: "你为什么总吸引不到对的人",
+    emoji: "🧲",
+    questions: [
+      {
+        text: "当你遇到一个有点心动的人时，你更像：",
+        opts: ["先观察，再慢慢了解","很快就会投入情绪","会想很多，但不太主动","下意识先告诉自己别认真"]
+      },
+      {
+        text: "你最容易被哪种人吸引？",
+        opts: ["情绪稳定、说到做到的人","会给你明显反馈和热情的人","有点难懂、让你忍不住猜的人","看起来强大、让你想靠近的人"]
+      },
+      {
+        text: "一段关系刚开始时，你最在意的是：",
+        opts: ["价值观和相处感","对方是不是在乎我","对方到底怎么想","我能不能保持体面和分寸"]
+      },
+      {
+        text: "你过去关系里最常见的问题是：",
+        opts: ["一开始还行，后来发现不够合适","我投入更快，对方没跟上","我一直猜，最后把自己耗累了","我太克制，关系总进不去"]
+      },
+      {
+        text: "当对方忽冷忽热时，你更可能：",
+        opts: ["观察一阵，不合适就算了","会更想确认他的态度","忍不住被牵动情绪","立刻提醒自己撤退"]
+      },
+      {
+        text: "你在感情里的隐形习惯是：",
+        opts: ["会先判断能不能长期相处","容易用付出来换确定感","容易把模糊信号放大","喜欢一个人也不太显露出来"]
+      },
+      {
+        text: "下面哪种状态最像你？",
+        opts: ["不缺喜欢，但很少真正心动","一旦心动，就很容易认真","常常卡在暧昧和猜测里","明明也想靠近，却总先退一步"]
+      },
+      {
+        text: "你觉得自己最需要解决的是：",
+        opts: ["提高筛选效率","别总把真心给得太快","学会停止脑补、回到现实","放下过度防御，允许被了解"]
+      }
+    ],
+    results: [
+      { range:[8,12], emoji:"🔍", type:"标准太清晰型", desc:"你不是遇不到人，而是你很清楚自己不要什么。你有筛选力，不容易因为短暂心动就冲进去。你的优势是清醒；卡点是容易把「谨慎」走成「很难开始」。", hook:"完整版可接「你最适配的伴侣类型」，让筛选力真正帮到你。" },
+      { range:[13,17], emoji:"🎁", type:"真心给太快型", desc:"你最大的问题不是眼光差，而是太容易先拿出诚意。你愿意投入，也愿意经营关系，这很珍贵；但在关系还没稳之前，太快交出情绪，容易让你先受伤。", hook:"完整版可接「你恋爱里的节奏建议」，找到那个不委屈自己的投入方式。" },
+      { range:[18,22], emoji:"🌀", type:"暧昧脑补型", desc:"你不是傻，只是太容易在模糊里消耗自己。你对细节和信号很敏锐，也因此容易把一点点回应想得很深。你的优势是细腻；卡点是太容易把猜测当答案。", hook:"完整版可接「你最该停止的3种内耗」，帮你从脑补中解脱出来。" },
+      { range:[23,32], emoji:"🚪", type:"防御退后型", desc:"你并不是不想恋爱，而是太怕自己认真后失控。你习惯先退一步、先观察、先保护自己。你的优点是自持、分寸感强；但真正对的人，也需要看到你的靠近。", hook:"完整版可接「你如何在安全感里打开自己」，找到那个既不失控又能被爱的方式。" }
+    ]
+  }
+];
 
-      const match = results.find(item => score >= item.min && score <= item.max);
-      const resultEl = document.getElementById('result');
+let currentQuiz = 0;
+let currentQ = 0;
+let answers = [];
 
-      resultEl.innerHTML = `
-        <div class="tag">测试结果</div>
-        <h2 class="result-type">${match.title}</h2>
-        <div class="result-score">你的总分：${score} 分</div>
-        <div class="result-body">${match.body}</div>
-        <div class="tips">运营建议：这一页适合做免费引流版。下一步可以继续加“专属建议”“最容易吃亏的场景”“适合你的伴侣画像”等模块，作为付费完整版。</div>
-      `;
+function goHome() {
+  document.getElementById('cover').style.display = 'flex';
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+}
 
-      resultEl.style.display = 'block';
-      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+function startQuiz(idx) {
+  currentQuiz = idx;
+  currentQ = 0;
+  answers = new Array(8).fill(null);
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  const q = QUIZZES[idx];
+  document.getElementById('q-set-title').textContent = q.emoji + ' ' + q.title;
+  renderQuestion();
+}
 
-    function resetResult() {
-      const resultEl = document.getElementById('result');
-      resultEl.style.display = 'none';
-      resultEl.innerHTML = '';
-    }
-  </script>
+function renderQuestion() {
+  const q = QUIZZES[currentQuiz];
+  const item = q.questions[currentQ];
+  const total = q.questions.length;
+  const pct = Math.round((currentQ / total) * 100);
+
+  document.getElementById('prog-text').textContent = `第 ${currentQ+1} 题 / 共 ${total} 题`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  document.getElementById('q-num').textContent = `Q${currentQ+1}`;
+  document.getElementById('q-text').textContent = item.text;
+
+  const letters = ['A','B','C','D'];
+  const container = document.getElementById('q-opts');
+  container.innerHTML = '';
+  item.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'opt' + (answers[currentQ] === i ? ' selected' : '');
+    div.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    div.onclick = () => selectOpt(i);
+    container.appendChild(div);
+  });
+
+  document.getElementById('btn-prev').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').disabled = answers[currentQ] === null;
+  document.getElementById('btn-next').textContent = currentQ === total-1 ? '查看结果 ✦' : '下一题 →';
+
+  // Re-animate
+  const card = document.getElementById('q-card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'fadeSlide .4s ease';
+}
+
+function selectOpt(i) {
+  answers[currentQ] = i;
+  renderQuestion();
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  const total = QUIZZES[currentQuiz].questions.length;
+  if (currentQ < total - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function showResult() {
+  const score = answers.reduce((s, a) => s + (a + 1), 0);
+  const results = QUIZZES[currentQuiz].results;
+  let res = results[results.length - 1];
+  for (const r of results) {
+    if (score >= r.range[0] && score <= r.range[1]) { res = r; break; }
+  }
+
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('r-deco').textContent = res.emoji;
+  document.getElementById('r-type').textContent = res.type;
+  document.getElementById('r-score').textContent = `得分 ${score} 分`;
+  document.getElementById('r-desc').textContent = res.desc;
+  document.getElementById('r-hook').textContent = res.hook;
+
+  document.getElementById('result-screen').scrollIntoView({ behavior: 'smooth' });
+}
+
+function retryQuiz() {
+  startQuiz(currentQuiz);
+}
+</script>
 </body>
 </html>
